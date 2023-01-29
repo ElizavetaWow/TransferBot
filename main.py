@@ -72,23 +72,25 @@ async def cmd_photo(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=GetImage.image, content_types=['photo'])
 async def process_photo(message: types.Message, state: FSMContext):
-    destination_file = cur_path + "\photos\content.jpg"
-    await message.photo[-1].download(destination_file=destination_file)
+    content_path = os.path.join(cur_path, 'photos', 'content.jpg') 
+    await message.photo[-1].download(destination_file=content_path)
     await message.answer('Загрузите фото стиля!')
     await state.set_state(GetImage.style.state)
 
 
 @dp.message_handler(state=GetImage.style, content_types=['photo'])
 async def process_photo(message: types.Message, state: FSMContext):
-    destination_file = cur_path + "\photos\style.jpg"
-    await message.photo[-1].download(destination_file=destination_file)
+    style_path = os.path.join(cur_path, 'photos', 'style.jpg')
+    await message.photo[-1].download(destination_file=style_path)
     await message.answer('Все фото загружены! \nМне потребуется немного времени для обработки, подождите, пожалуйста!')
     await state.finish()
 
     image_size = 400
-    transform(style_model, cur_path + "\photos\content.jpg",
-              cur_path + "\photos\style.jpg", image_size, filename=cur_path +'\photos\\result.jpg')
-    with open(cur_path +'\photos\\result.jpg', 'rb') as file:
+    content_path = os.path.join(cur_path, 'photos', 'content.jpg')
+    result_path = os.path.join(cur_path, 'photos', 'result.jpg')
+    transform(style_model, content_path,
+              style_path, image_size, filename= result_path)
+    with open(result_path, 'rb') as file:
         await message.answer_photo(file, caption='Готово!')
 
 
